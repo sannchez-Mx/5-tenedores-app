@@ -49,25 +49,22 @@ function Restaurant(props) {
 
   useEffect(() => {
     if (Array.isArray(image)) {
-      const img = image[0];
-      firebaseDownloadImages(setImageRestaurant, img);
+      firebaseDownloadImages(setImageRestaurant, image[0]);
+    } else {
+      setImageRestaurant(image);
     }
   }, []);
 
-  const imagen = () => {
-    if (Array.isArray(image)) {
-      return imageRestaurant;
-    } else {
-      return image;
-    }
-  };
-
   return (
-    <TouchableOpacity onPress={() => navigate("Restaurant", { restaurant })}>
+    <TouchableOpacity
+      onPress={() =>
+        navigate("Restaurant", { restaurant: restaurant.item.restaurant })
+      }
+    >
       <View style={styles.viewRestaurant}>
         <View style={styles.viewRestaurantImage}>
           <Image
-            source={{ uri: imagen() }}
+            source={{ uri: imageRestaurant }}
             resizeMode="cover"
             style={styles.imageRestaurant}
             PlaceholderContent={<ActivityIndicator color="fff" />}

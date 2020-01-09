@@ -1,26 +1,35 @@
 import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, View, ScrollView, Text, Dimensions } from "react-native";
 import { Rating, ListItem, Icon } from "react-native-elements";
+import Toast from "react-native-easy-toast";
 
 //Component
 import CarouselImages from "../../components/Carousel";
 import Map from "../../components/Map";
+import ListReviews from "../../components/Restaurants/ListReviews";
 
 //Firebase Function
-import { firebaseDownloadImages } from "../../utils/FireBase";
+import {
+  firebaseDownloadImages,
+  firebaseAuthState,
+  firestoreDB,
+  firebaseUserUid
+} from "../../utils/FireBase";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function Restaurant(props) {
   const { navigation } = props;
-  const { restaurant } = navigation.state.params.restaurant.item;
+  const { restaurant } = navigation.state.params;
 
   const [imagesRestaurant, setImagesRestaurant] = useState([]);
   const [rating, setRating] = useState(restaurant.rating);
   const [isFavorite, setIsFavorite] = useState(false);
   const [userLogged, setUserLogged] = useState(false);
 
-  const toastRef = useRef();
+  const toastRef = useRef();  
+
+  firebaseAuthState(setUserLogged);
 
   useEffect(() => {
     const arrayUrls = [];
@@ -40,8 +49,88 @@ export default function Restaurant(props) {
     })();
   }, []);
 
+  useEffect(() => {
+    if (userLogged) {
+      firestoreDB
+        .collection("favorites")
+        .where("id_restaurant", "==", restaurant.id)
+        .where("id_user", "==", firebaseUserUid())
+        .get()
+        .then(response => {
+          if (response.docs.length === 1) {
+            setIsFavorite(true);
+          }
+        });
+    }
+  }, [userLogged]);
+
+  const addFavorite = () => {
+    if (!userLogged) {
+      toastRef.current.show(
+        "Para agreagar a favoritos tienes que iniciar sesión",
+        2000
+      );
+    } else {
+      const payload = {
+        id_user: firebaseUserUid(),
+        id_restaurant: restaurant.id
+      };
+
+      firestoreDB
+        .collection("favorites")
+        .add(payload)
+        .then(() => {
+          setIsFavorite(true);
+          toastRef.current.show("Restaurante añadido a la lista de favoritos");
+        })
+        .catch(() => {
+          toastRef.current.show(
+            "Error al añadir el restaurante a la lista de favoritos, intentelo más tarde"
+          );
+        });
+    }
+  };
+
+  const removeFavorite = () => {
+    firestoreDB
+      .collection("favorites")
+      .where("id_restaurant", "==", restaurant.id)
+      .where("id_user", "==", firebaseUserUid())
+      .get()
+      .then(response => {
+        response.forEach(doc => {
+          const idFavorite = doc.id;
+          firestoreDB
+            .collection("favorites")
+            .doc(idFavorite)
+            .delete()
+            .then(() => {
+              setIsFavorite(false);
+              toastRef.current.show(
+                "Restaurante eliminado de la lista de favoritos"
+              );
+            })
+            .catch(() => {
+              toastRef.current.show(
+                "No se ha podido eliminar el restante de la lista de favoritos, intentelo mas tarde"
+              );
+            });
+        });
+      });
+  };
+
   return (
     <ScrollView style={styles.viewBody}>
+      <View style={styles.viewFavorite}>
+        <Icon
+          type="material-community"
+          name={isFavorite ? "heart" : "heart-outline"}
+          onPress={isFavorite ? removeFavorite : addFavorite}
+          color={isFavorite ? "#00a680" : "#000"}
+          size={35}
+          underlayColor="transparent"
+        />
+      </View>
       <CarouselImages
         arrayImages={imagesRestaurant}
         width={screenWidth}
@@ -57,6 +146,12 @@ export default function Restaurant(props) {
         name={restaurant.name}
         address={restaurant.address}
       />
+      <ListReviews
+        navigation={navigation}
+        idRestaurant={restaurant.id}
+        setRating={setRating}
+      />
+      <Toast ref={toastRef} position="center" opacity={0.5} />
     </ScrollView>
   );
 }

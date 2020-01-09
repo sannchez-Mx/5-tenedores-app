@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, ActivityIndicator } from "react-native";
 import { Image } from "react-native-elements";
 import Carousel, { Pagination } from "react-native-snap-carousel";
+
 export default function CarouselImages(props) {
   const { arrayImages, height, width } = props;
 
@@ -11,13 +12,17 @@ export default function CarouselImages(props) {
     <View>
       <Carousel
         autoplay={true}
-        autoplayInterval={8000}
+        autoplayInterval={7000}
         autoplayDelay={1000}
         enableSnap={true}
         data={arrayImages}
         renderItem={({ item, index }) => (
           <View key={index}>
-            <Image style={{ width, height }} source={{ uri: item }} />
+            <Image
+              style={{ width, height }}
+              source={{ uri: item }}
+              PlaceholderContent={<ActivityIndicator size="large" />}
+            />
           </View>
         )}
         onSnapToItem={index => setActive(index)}

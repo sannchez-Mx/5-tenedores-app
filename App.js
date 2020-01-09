@@ -4,7 +4,8 @@ import { YellowBox } from "react-native";
 YellowBox.ignoreWarnings([
   "Setting a timer",
   "ERR_APP_AUTH",
-  "Warning: componentWillReceiveProps"
+  "componentWillReceiveProps",
+  "VirtualizedLists"
 ]);
 
 //Navegación

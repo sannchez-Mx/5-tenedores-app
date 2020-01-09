@@ -133,9 +133,10 @@ export const firebaseGoogleLogIn = async (navigate, toast, setIsLoading) => {
 };
 
 //Firebase User Status
-export const firebaseUserStatus = async setUserInfo => {
+export const firebaseUserStatus = async (setUserInfo = null) => {
   const user = firebase.auth().currentUser;
-  await setUserInfo(user.providerData[0]);
+  !setUserInfo ? "" : await setUserInfo(user.providerData[0]);
+  return user;
 };
 
 //Firebase User UID
@@ -225,8 +226,9 @@ export const uploadImagesStorage = async (imageArray, uuid) => {
   return imagesBlob;
 };
 
+//Firebase download images
 export const firebaseDownloadImages = async (setImageRestaurant, image) => {
- return await firebase
+  return await firebase
     .storage()
     .ref(`restaurant-images/${image}`)
     .getDownloadURL()
