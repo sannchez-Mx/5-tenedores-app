@@ -2,6 +2,9 @@ import firebase from "firebase";
 import "firebase/auth";
 import "firebase/firestore";
 
+import { FireSQL } from "firesql";
+
+
 //Facebook Log In
 import { FacebookApi } from "./Social";
 import * as Facebook from "expo-facebook";
@@ -32,6 +35,9 @@ const firebaseConfig = {
 // Initialize Firebase and Firestore
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 export const firestoreDB = firebase.firestore(firebaseApp);
+
+// Initialize FireSQL
+const fireSQL = new FireSQL(firebase.firestore(), { includeId: "id" });
 
 //Firebase login status
 export const firebaseAuthState = setLogin => {
@@ -236,4 +242,20 @@ export const firebaseDownloadImages = async (setImageRestaurant, image) => {
       !setImageRestaurant ? "" : setImageRestaurant(res);
       return res;
     });
+};
+
+//Firebase Search Restaurant
+export const firebaseSearchRestaurant = async (search, setRestaurants) => {
+  if (search) {
+    const restaurants = fireSQL.query(`
+    SELECT * 
+    FROM restaurants 
+    WHERE name LIKE '${search}%'`);
+
+    await restaurants.then(res => {
+      setRestaurants(res);
+    });
+  } else {
+    setRestaurants("");
+  }
 };

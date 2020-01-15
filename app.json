@@ -15,7 +15,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#151f2e"
+      "backgroundColor": "#00a680"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -27,7 +27,13 @@
       "supportsTablet": true
     },
     "android": {
-      "permissions": ["CAMERA_ROLL", "LOACATION"]
-    }
+      "package": "com.sannchez_mx.cinco_tenedores_app",
+      "permissions": [
+        "CAMERA_ROLL",
+        "LOACATION"
+      ]
+    },
+    "description": "",
+    "githubUrl": "https://github.com/sannchez-Mx/5-tenedores-app"
   }
 }
