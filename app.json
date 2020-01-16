@@ -30,7 +30,7 @@
       "package": "com.sannchez_mx.cinco_tenedores_app",
       "permissions": [
         "CAMERA_ROLL",
-        "LOACATION"
+        "LOCATION"
       ]
     },
     "description": "",
